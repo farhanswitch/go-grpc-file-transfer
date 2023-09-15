@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package proto;
+option go_package = ".;filepb";
+
+message UploadRequest{
+  string mime = 1;
+  bytes chunk = 2;
+}
+
+message UploadResponse {
+  string name = 1;
+}
+
+service FileService{
+  rpc Upload(stream UploadRequest) returns (UploadResponse){}
+}
