@@ -12,6 +12,15 @@ message UploadResponse {
   string name = 1;
 }
 
+message DownloadRequest {
+  string name = 1;
+}
+message DownloadResponse{
+  string mime = 1;
+  string name = 2;
+  bytes chunk = 3;
+}
 service FileService{
   rpc Upload(stream UploadRequest) returns (UploadResponse){}
+  rpc Download(DownloadRequest) returns (stream DownloadResponse){}
 }

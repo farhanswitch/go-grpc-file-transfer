@@ -3,6 +3,7 @@ package upload
 import (
 	"io"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/farhanswitch/grpc-file/utilities/storage"
@@ -30,7 +31,37 @@ func RandomString(length int) string {
 func NewServer(storage storage.Storage) Server {
 	return Server{storage, filepb.UnimplementedFileServiceServer{}}
 }
+func (s Server) Download(req *filepb.DownloadRequest, stream filepb.FileService_DownloadServer) error {
+	name := s.storage.Dir + req.GetName()
+	fil, err := os.Open(name)
+	if err != nil {
+		return status.Error(codes.NotFound, err.Error())
+	}
+	defer fil.Close()
+	// Maximum 5KB per stream
+	buf := make([]byte, 1024)
 
+	for {
+		num, err := fil.Read(buf)
+		// log.Println(buf[:num])
+
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		if err := stream.Send(&filepb.DownloadResponse{
+			Name:  name,
+			Chunk: buf[:num],
+		}); err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	return nil
+}
 func (s Server) Upload(stream filepb.FileService_UploadServer) error {
 	name := RandomString(10) + ".png"
 	file := storage.NewFile(name)
