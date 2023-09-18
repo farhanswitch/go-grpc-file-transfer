@@ -68,8 +68,8 @@ func (c Client) Upload(ctx context.Context, file string) (string, error) {
 		return "", err
 	}
 
-	// Maximum 1KB per stream
-	buf := make([]byte, 1024)
+	// Maximum 10KB per stream
+	buf := make([]byte, 10*1024)
 
 	for {
 		num, err := fil.Read(buf)

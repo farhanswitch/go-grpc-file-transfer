@@ -38,8 +38,8 @@ func (s Server) Download(req *filepb.DownloadRequest, stream filepb.FileService_
 		return status.Error(codes.NotFound, err.Error())
 	}
 	defer fil.Close()
-	// Maximum 5KB per stream
-	buf := make([]byte, 1024)
+	// Maximum 10KB per stream
+	buf := make([]byte, 10*1024)
 
 	for {
 		num, err := fil.Read(buf)
